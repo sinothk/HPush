@@ -20,10 +20,20 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    // 此处版本号仅为示例，请手动修改成实际集成的HMSSDK版本号
+//    String HMSSDKVer = '2.6.1.301'
+//    implementation 'com.huawei.android.hms:iap:' + HMSSDKVer
+//    implementation 'com.huawei.android.hms:game:' + HMSSDKVer
+//    implementation 'com.huawei.android.hms:sns:' + HMSSDKVer
+//    implementation 'com.huawei.android.hms:hwid:' + HMSSDKVer
+//    implementation 'com.huawei.android.hms:push:' + HMSSDKVer
+//    implementation 'com.huawei.android.hms:opendevice:' + HMSSDKVer
+    implementation files('libs/hmssdk-2.6.3.306.jar')
 }

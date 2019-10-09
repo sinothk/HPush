@@ -1,21 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.sinothk.push.hw.demo">
+    <!-- HMS-SDK引导升级HMS功能，访问OTA服务器需要网络权限 | HMS-SDK upgrade HMS Feature, access to OTA server requires network privileges -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- HMS-SDK引导升级HMS功能，保存下载的升级包需要SD卡写权限 | HMS-SDK upgrade HMS Feature, save downloaded upgrade pack requires SD card Write permission -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- 检测网络状态 | Detecting Network status -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- 检测wifi状态 | Detecting WiFi status -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- 获取用户手机的IMEI，用来唯一的标识设备。 | Gets the IMEI of the user's phone, used to uniquely identify the device. -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- Android O版本调用安装需要使用该权限 -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" /> <!-- 接收PUSH TOKEN的广播以及PUSH消息需要定义该权限 com.sinothk.push.hw.demo 要替换上您应用的包名 -->
+    <permission
+        android:name="com.sinothk.push.hw.demo.permission.PROCESS_PUSH_MSG"
+        android:protectionLevel="signature" /> <!-- 接收PUSH TOKEN的广播以及PUSH消息需要定义该权限 com.sinothk.push.hw.demo 要替换上您应用的包名 -->
+    <uses-permission android:name="com.sinothk.push.hw.demo.permission.PROCESS_PUSH_MSG" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+
+        <activity android:name=".NoticeDetailActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:host="com.sinothk.push.hw.demo"
+                    android:path="/notify_detail"
+                    android:scheme="customscheme" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".PushActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity> <!-- value的值“xxx”用实际申请的应用ID替换，来源于开发者联盟网站应用的服务详情。 -->
+
+        <!-- 华为推送配置-->
+
+        <meta-data
+            android:name="com.huawei.hms.client.appid"
+            android:value="appid=101194679" />
+        <!--
+            接入HMSSDK PUSH模块需要注册，第三方相关 :接收Push消息（注册、Push消息、Push连接状态）广播，
+                 此receiver类需要开发者自己创建并继承com.huawei.hms.support.api.push.PushReceiver类，
+                 参考示例代码中的类：com.huawei.hmsagent.HuaweiPushRevicer
+            Access to the HMSSDK push module requires registration:
+                 Receive push message (registration, push message, push connection state) broadcast.
+                 This receiver class requires the developer to create and inherit the com.huawei.hms.support.api.push.PushReceiver class.
+                 Reference to class in sample code: Com.huawei.hmsagent.HuaweiPushRevicer
+        -->
+        <receiver android:name=".HuaweiPushRevicer">
+            <intent-filter>
+
+                <!-- 必须,用于接收token | Must， for receiving token -->
+                <action android:name="com.huawei.android.push.intent.REGISTRATION" />
+                <!-- 必须，用于接收消息 | Must， used to receive messages -->
+                <action android:name="com.huawei.android.push.intent.RECEIVE" />
+                <!-- 可选，用于点击通知栏或通知栏上的按钮后触发onEvent回调 | Optional, click the button on the notification bar or the notification bar to trigger the onevent callback -->
+                <action android:name="com.huawei.android.push.intent.CLICK" />
+                <!-- 可选，查看push通道是否连接，不查看则不需要 | Optional, query whether the push channel is connected or not -->
+                <action android:name="com.huawei.intent.action.PUSH_STATE" />
+            </intent-filter>
+        </receiver>
+        <!--
+            接入HMSSDK 需要注册的provider，authorities 一定不能与其他应用一样，所以这边 com.sinothk.push.hw.demo 要替换上您应用的包名
+            Access HMSSDK need to register provider,authorities must not be the same as other applications, so this side ${package_name} to replace the package name you applied
+        -->
+        <provider
+            android:name="com.huawei.hms.update.provider.UpdateProvider"
+            android:authorities="com.sinothk.push.hw.demo.hms.update.provider"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+        <!--
+            接入HMSSDK 需要注册的provider，authorities 一定不能与其他应用一样，所以这边 com.sinothk.push.hw.demo 要替换上您应用的包名
+            Access HMSSDK need to register provider,authorities must not be the same as other applications, so this side ${package_name} to replace the package name you applied
+        -->
+        <provider
+            android:name="com.huawei.updatesdk.fileprovider.UpdateSdkFileProvider"
+            android:authorities="com.sinothk.push.hw.demo.updateSdk.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true"/>
+
+        <!-- 使用 HMSAgent 代码接入HMSSDK 需要注册的activity | Use hmsagent code to access HMSSDK activity that requires registration -->
+        <activity
+            android:name="com.huawei.android.hms.agent.common.HMSAgentActivity"
+            android:configChanges="orientation|locale|screenSize|layoutDirection|fontScale"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:hardwareAccelerated="true"
+            android:theme="@android:style/Theme.Translucent">
+            <meta-data
+                android:name="hwc-theme"
+                android:value="androidhwext:style/Theme.Emui.Translucent" />
+        </activity> <!-- 接入HMSSDK 需要注册的activity | Access HMSSDK activity to be registered -->
+        <activity
+            android:name="com.huawei.hms.activity.BridgeActivity"
+            android:configChanges="orientation|locale|screenSize|layoutDirection|fontScale"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:hardwareAccelerated="true"
+            android:theme="@android:style/Theme.Translucent">
+            <meta-data
+                android:name="hwc-theme"
+                android:value="androidhwext:style/Theme.Emui.Translucent" />
+        </activity> <!-- 接入HMSSDK 需要注册的activity | Access HMSSDK activity to be registered -->
+        <activity
+            android:name="com.huawei.updatesdk.service.otaupdate.AppUpdateActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat">
+            <meta-data
+                android:name="hwc-theme"
+                android:value="androidhwext:style/Theme.Emui.Translucent.NoTitleBar" />
+        </activity> <!-- 接入HMSSDK 需要注册的activity | Access HMSSDK activity to be registered -->
+        <activity
+            android:name="com.huawei.updatesdk.support.pm.PackageInstallerActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat">
+            <meta-data
+                android:name="hwc-theme"
+                android:value="androidhwext:style/Theme.Emui.Translucent" />
+        </activity> <!-- 接入HMSSDK 游戏需要注册的activity | Activity to register when accessing HMSSDK game module using hmsagent code -->
+        <activity
+            android:name="com.huawei.appmarket.component.buoycircle.impl.delegete.BuoyBridgeActivity"
+            android:configChanges="orientation|locale|screenSize|layoutDirection|fontScale"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:hardwareAccelerated="true"
+            android:theme="@android:style/Theme.Translucent">
+            <meta-data
+                android:name="hwc-theme"
+                android:value="androidhwext:style/Theme.Emui.Translucent" />
         </activity>
+
+        <!-- 接入HMSSDK PUSH模块需要注册该service，不需要开发者处理 -->
+        <service
+            android:name="com.huawei.hms.support.api.push.service.HmsMsgService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":pushservice">
+            <intent-filter>
+                <action android:name="com.huawei.push.msg.NOTIFY_MSG" />
+                <action android:name="com.huawei.push.msg.PASSBY_MSG" />
+            </intent-filter>
+        </service>
+
+        <!-- 接入HMSSDK 需要注册的应用下载服务 | Access HMSSDK need to register app download service -->
+        <service
+            android:name="com.huawei.updatesdk.service.deamon.download.DownloadService"
+            android:exported="false" />
     </application>
 
 </manifest>
