@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 public class NoticeDetailActivity extends AppCompatActivity {
@@ -37,5 +38,17 @@ public class NoticeDetailActivity extends AppCompatActivity {
         String intentUri = intent.toUri(Intent.URI_INTENT_SCHEME);
 
         // intentUri 自定义点击操作：这个给后台使用
+    }
+
+    @Override
+    public void finish() {
+        if (!App.isExistMainActivity(this)) {
+            startActivity(new Intent(this, PushActivity.class));
+
+            Log.e("isExistMainActivity" , "F");
+        }else {
+            Log.e("isExistMainActivity" , "T");
+        }
+        super.finish();
     }
 }

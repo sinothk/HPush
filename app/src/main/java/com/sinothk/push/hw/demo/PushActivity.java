@@ -31,13 +31,10 @@ public class PushActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_push);
 
-//        Button btn = (Button) findViewById(R.id.btn_push);
-//        if (btn != null) {
-//            btn.setTextColor(Color.RED);
-//            btn.setEnabled(false);
-//        }
+        App.addActivity(this);
+
+        setContentView(R.layout.activity_push);
 
         findViewById(R.id.btn_gettoken).setOnClickListener(this);
         findViewById(R.id.btn_deletetoken).setOnClickListener(this);
