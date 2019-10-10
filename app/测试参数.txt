@@ -1,0 +1,15 @@
+APP ID：
+101194679  复制
+APP SECRET：
+530e59c9c102832958c1de170f183ddb2cc935b6640cd518d569d6e277c4ef96  复制
+
+0866049038673042300004733800CN01
+
+Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("customscheme://com.sinothk.push.hw.demo/notify_detail?title=what&content=3333"));
+
+intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+String intentUri = intent.toUri(Intent.URI_INTENT_SCHEME);
+
+
+Log.e("huaweipush","action是:" + intentUri);
